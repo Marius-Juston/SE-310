@@ -13,6 +13,8 @@ def optimize_v1(x0, E, W, D, xi=None, plot=True):
     solver = Solver(nodeCords, elemNodes, modE, Area, DispCon, Fval)
     solver.solve()
 
+    print(solver.Stress)
+
     if plot:
         solver.plot()
 
@@ -167,6 +169,7 @@ def scipy_optimization(xi=None):
     print(node_distance(x0, E, W, D, xi=xi))
     print(slenderness_ratio(x0, E, W, D, xi=xi))
 
+    print("------------ FINAL ------------")
     res = minimize(partial(calculate_c, E=E, W=W, D=D, xi=xi), x0, method='trust-constr', bounds=bounds,
                    constraints=[nlc, nlc2, nlc3, nlc4],
                    options={'verbose': 1, 'maxiter': 1 * 1e5}, jac='3-point')
@@ -174,10 +177,12 @@ def scipy_optimization(xi=None):
     with open('../out.txt', 'w') as f:
         f.write(str(res))
 
-    print("------------ FINAL ------------")
     print(f'{res.x=}')
     print(optimize_v1(res.x, E, W, D, xi=xi))
     print(node_distance(res.x, E, W, D, xi=xi))
+    print(stress_calculator(res.x, E, W, D, xi=xi))
+    print(slenderness_ratio(res.x, E, W, D, xi=xi))
+    print(critical_buckling(res.x, E, W, D, xi=xi))
 
 
 if __name__ == '__main__':
