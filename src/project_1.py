@@ -124,11 +124,7 @@ def slenderness_ratio(x0, E=1, W=0, D=0, xi=None):
         first, last = elemNodes[i]
         l_i = np.linalg.norm(nodeCords[first] - nodeCords[last])
         a_i = Area[i]
-        I = a_i ** 2 / 12
-
-        r = np.sqrt(I / a_i)
-
-        slenderness.append((l_i / r)[0])
+        slenderness.append((l_i * np.sqrt(12 / a_i))[0])
 
     return slenderness
 
