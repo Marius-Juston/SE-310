@@ -67,15 +67,15 @@ def critical_buckling(x0, E, W=0, D=0, safety_factor=1, xi=None):
 
     solver = Solver(nodeCords, elemNodes, modE, Area, DispCon, Fval)
     solver.solve()
-    internal = -solver.internal_forces
+    internal = solver.internal_forces
     critical = solver.critical_loads
     mask = internal < 0
 
-    i_ = internal[mask]
+    i_ = -internal[mask]
     critical = critical[mask]
 
     results = np.ones_like(internal)
-    results[mask] = critical / 4 - i_
+    results[mask] = critical / safety_factor - i_
 
     return results.ravel()
 
