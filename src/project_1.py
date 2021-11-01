@@ -75,7 +75,7 @@ def critical_buckling(x0, E, W=0, D=0, safety_factor=1, xi=None):
     critical = critical[mask]
 
     results = np.ones_like(internal)
-    results[mask] = critical - i_ / safety_factor
+    results[mask] = critical / 4 - i_
 
     return results.ravel()
 
