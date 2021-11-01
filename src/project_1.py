@@ -166,7 +166,8 @@ def scipy_optimization(xi=None):
 
         bounds = Bounds(l_b[:-1], u_b[:-1])
 
-    nlc = NonlinearConstraint(partial(stress_calculator, E=E, W=W, D=D, xi=xi), -MaxYield, MaxYield, jac='3-point')
+    nlc = NonlinearConstraint(partial(stress_calculator, E=E, W=W, D=D, xi=xi), -MaxYield / safety_factor,
+                              MaxYield / safety_factor, jac='3-point')
 
     nlc2 = NonlinearConstraint(partial(critical_buckling, E=E, W=W, D=D, safety_factor=safety_factor, xi=xi), 0, np.inf,
                                jac='3-point')
