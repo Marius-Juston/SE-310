@@ -151,12 +151,15 @@ def scipy_optimization(xi=None):
     nlc = NonlinearConstraint(partial(stress_calculator, E=E, W=W, D=D, xi=xi), -MaxYield / safety_factor,
                               MaxYield / safety_factor, jac='3-point')
 
-    nlc2 = NonlinearConstraint(partial(critical_buckling, E=E, W=W, D=D, safety_factor=safety_factor, xi=xi), 0, np.inf,
+    tol = 0
+
+    nlc2 = NonlinearConstraint(partial(critical_buckling, E=E, W=W, D=D, safety_factor=safety_factor, xi=xi), 0 + tol,
+                               np.inf,
                                jac='3-point')
     #
     nlc3 = NonlinearConstraint(partial(node_distance, E=E, W=W, D=D, xi=xi), 2, np.inf, jac='3-point')
 
-    nlc4 = NonlinearConstraint(partial(slenderness_ratio, E=E, W=W, D=D, xi=xi), 0, 500, jac='3-point')
+    nlc4 = NonlinearConstraint(partial(slenderness_ratio, E=E, W=W, D=D, xi=xi), 0, 500 - tol, jac='3-point')
 
     print("------------ INITIAL ------------")
     print(f'{x0=}')
