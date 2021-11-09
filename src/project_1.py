@@ -2,6 +2,8 @@ import itertools
 from functools import partial
 
 import numpy as np
+from openpyxl import Workbook, load_workbook
+from openpyxl.worksheet.worksheet import Worksheet
 from scipy.optimize import minimize, NonlinearConstraint, Bounds
 
 from solver import Solver
@@ -201,6 +203,66 @@ def scipy_optimization(xi=None, uniform=True):
     print(stress_calculator(res.x, E, W, D, xi=xi, u=uniform))
     print(slenderness_ratio(res.x, E, W, D, xi=xi, u=uniform))
     print(critical_buckling(res.x, E, W, D, xi=xi, u=uniform))
+
+    save_to_excel(res.x, E, W, D, xi, uniform)
+
+
+def save_to_excel(x0, E, W, D, xi=None, uniform=True, file="../InputFea_a.xlsx"):
+    nodeCords, elemNodes, modE, Area, DispCon, Fval = parameter_calculation(x0, E, W, D, xi,
+                                                                            uniformCrossSection=uniform)
+
+    solver = Solver(nodeCords, elemNodes, modE, Area, DispCon, Fval)
+    solver.solve()
+
+    workbook: Workbook = load_workbook(filename=file)
+
+    sheet: Worksheet = workbook['elemNodes']
+
+    for i in range(elemNodes.shape[0]):
+        sheet.cell(i + 2, 1).value = elemNodes[i][0]
+        sheet.cell(i + 2, 2).value = elemNodes[i][1]
+
+    sheet: Worksheet = workbook['nodeCords']
+    for i in range(nodeCords.shape[0]):
+        sheet.cell(i + 2, 1).value = i
+        sheet.cell(i + 2, 2).value = nodeCords[i][0]
+        sheet.cell(i + 2, 3).value = nodeCords[i][1]
+
+    sheet: Worksheet = workbook['CrossSection']
+    for i in range(Area.shape[0]):
+        sheet.cell(i + 2, 1).value = Area[i][0]
+        sheet.cell(i + 2, 2).value = modE[i][0]
+
+    sheet: Worksheet = workbook['DispCon']
+    for i in range(DispCon.shape[0]):
+        sheet.cell(i + 2, 1).value = DispCon[i][0]
+        sheet.cell(i + 2, 2).value = DispCon[i][1]
+        sheet.cell(i + 2, 3).value = DispCon[i][2]
+
+    sheet: Worksheet = workbook['forces']
+    for i in range(Fval.shape[0]):
+        sheet.cell(i + 2, 1).value = Fval[i][0]
+        sheet.cell(i + 2, 2).value = Fval[i][1]
+        sheet.cell(i + 2, 3).value = Fval[i][2]
+
+    sheet: Worksheet = workbook['EStress']
+    for i in range(solver.Stress.shape[0]):
+        index = i + 2
+
+        sheet.cell(index, 2).value = solver.Stress[i]
+        sheet.cell(index,
+                   3).value = f'=IF(ISNUMBER(elemNodes!A{index}),SQRT((VLOOKUP(elemNodes!A{index},nodeCords!$A$2:$C$105,2,FALSE)-VLOOKUP(elemNodes!B{index},nodeCords!$A$2:$C$105,2,FALSE))^2+(VLOOKUP(elemNodes!A{index},nodeCords!$A$2:$C$105,3,FALSE)-VLOOKUP(elemNodes!B{index},nodeCords!$A$2:$C$105,3,FALSE))^2),"")'
+        sheet.cell(index, 4).value = f'=IF(ISNUMBER(B{index}),B{index}*CrossSection!A{index},"")'
+        sheet.cell(index,
+                   5).value = f'=IF(ISNUMBER(B{index}),-(PI()^2*CrossSection!B{index}*CrossSection!A{index}^2)/(48*C{index}^2),"")'
+        sheet.cell(index, 6).value = f'=IF(ISNUMBER(B{index}),C{index}*SQRT(12/CrossSection!$A{index}),"")'
+        sheet.cell(index, 7).value = f'=IF(ISNUMBER(B{index}),IF(ABS(D{index})>ABS(E{index}),"X","J"),"")'
+        sheet.cell(index, 8).value = f'=IF(ISNUMBER(B{index}),IF(ABS(B{index})>150000000,"X","J"),"")'
+        sheet.cell(index, 9).value = f'=IF(ISNUMBER(B{index}),IF(F{index}>500,"X","J"),"")'
+        sheet.cell(index, 10).value = f'=IF(ISNUMBER(B{index}),C{index}*CrossSection!$A{index},"")'
+
+    workbook.save(file)
+    print("Solved")
 
 
 if __name__ == '__main__':
