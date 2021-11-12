@@ -271,7 +271,22 @@ def save_to_excel(x0, E, W, D, xi=None, uniform=True, file="../InputFea_a.xlsx")
 
 
 if __name__ == '__main__':
+    W = 80 * 1000
+    D = 78771
+    E = 200 * 1e9
+
+    x0 = [3.59164903, 4.13653055, 4.27378281, 50.00000018, 0.34730275]  # 136.68311266
+    x0 = [5.65215739, 3.59013432, 17.07125767, 50.00494497, 0.19227025,
+          0.36781726, 0.1420632, 0.23090128, 0.14160986, 0.0684492,
+          0.34904794, 0.23019538, 0.15407471]  # 136.68311266
+
+    # print(critical_buckling(x0, E=E, W=W, D=D, safety_factor=4))
+    # print(slenderness_ratio(x0, E=E, W=W, D=D))
+
+    # save_to_excel(x0, E, W, D, uniform=False)
+    # print(optimize_v1(x0, E, W, D))
+
     # xi = 2.30056943e-02
-    xi = None
+    # xi = None
 
     scipy_optimization(uniform=False)
