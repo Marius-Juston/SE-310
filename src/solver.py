@@ -160,11 +160,11 @@ class Solver:
             indiceE = self.elemNodes[e, :]
             plt.plot(np.array([self.xx[indiceE[0]], self.xx[indiceE[1]]]),
                      np.array([self.yy[indiceE[0]], self.yy[indiceE[1]]]))
-            # plt.plot(np.array(
-            #     [self.xx[indiceE[0]] + self.uDisp[indiceE[0] * 2], self.xx[indiceE[1]] + self.uDisp[indiceE[1] * 2]]),
-            #     np.array([self.yy[indiceE[0]] + self.uDisp[indiceE[0] * 2 + 1],
-            #               self.yy[indiceE[1]] + self.uDisp[indiceE[1] * 2 + 1]]),
-            #     '--')
+            plt.plot(np.array(
+                [self.xx[indiceE[0]] + self.uDisp[indiceE[0] * 2], self.xx[indiceE[1]] + self.uDisp[indiceE[1] * 2]]),
+                np.array([self.yy[indiceE[0]] + self.uDisp[indiceE[0] * 2 + 1],
+                          self.yy[indiceE[1]] + self.uDisp[indiceE[1] * 2 + 1]]),
+                '--')
 
         plt.gca().set_aspect('equal', adjustable='box')
         pduDisp = pd.DataFrame({'disp': self.uDisp[:, 0]})

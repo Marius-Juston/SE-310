@@ -274,4 +274,4 @@ if __name__ == '__main__':
     # xi = 2.30056943e-02
     xi = None
 
-    scipy_optimization(xi=xi)
+    scipy_optimization(uniform=False)
