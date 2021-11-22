@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -78,8 +80,8 @@ class Solver:
 
         return self.Stress, self.forces
 
-    def plot(self):
-        self.__plot()
+    def plot(self, removed=None):
+        self.__plot(removed=removed)
         plt.show()
 
     def __calculate_global_stiffness(self):
@@ -151,28 +153,49 @@ class Solver:
             # Stress
             self.Stress[e] = Fint[1] / Ae
 
-    def __plot(self):
+    def __plot(self, removed=None):
         # Plotting and display
         # plt.xlim(min(self.xx) - abs(min(self.xx) / 10), max(self.xx) + abs(max(self.xx) / 10))
         # plt.ylim(min(self.yy) - abs(min(self.yy) / 10), max(self.yy) + abs(max(self.xx) / 10))
+
+        r = .1
 
         for e in range(self.nELEM):
             indiceE = self.elemNodes[e, :]
             plt.plot(np.array([self.xx[indiceE[0]], self.xx[indiceE[1]]]),
                      np.array([self.yy[indiceE[0]], self.yy[indiceE[1]]]))
+
+            s = np.array([self.xx[indiceE[0]], self.yy[indiceE[0]]])
+            e_ = np.array([self.xx[indiceE[1]], self.yy[indiceE[1]]])
+
+            p = (s + e_) / 2
+
+            if removed is not None and e >= removed:
+                e+= 1
+
+            plt.text(p[0], p[1], e, ha="center", va="center",
+                     bbox=dict(boxstyle=f"circle,pad={r}", fc="wheat"))
+
             plt.plot(np.array(
                 [self.xx[indiceE[0]] + self.uDisp[indiceE[0] * 2], self.xx[indiceE[1]] + self.uDisp[indiceE[1] * 2]]),
                 np.array([self.yy[indiceE[0]] + self.uDisp[indiceE[0] * 2 + 1],
                           self.yy[indiceE[1]] + self.uDisp[indiceE[1] * 2 + 1]]),
                 '--')
 
+        for i, p in enumerate(self.nodeCords):
+            plt.text(p[0] + 1.25, p[1], i, ha="center", va="center",
+                     bbox=dict(boxstyle=f"square,pad={r}", fc="lightblue"))
+
         plt.gca().set_aspect('equal', adjustable='box')
+        plt.tight_layout()
         pduDisp = pd.DataFrame({'disp': self.uDisp[:, 0]})
         pdforces = pd.DataFrame({'forces': self.forces[:, 0]})
         pdStress = pd.DataFrame({'Stress': self.Stress})
         pdLen = pd.DataFrame({'Length': self.L_elem})
         pdCritical = pd.DataFrame({'critical': self.critical_loads.ravel(), "internal": self.internal_forces.ravel()})
         # Displaying the results
+        plt.savefig(f"{datetime.now().strftime('%H-%M-%S')}.png", dpi=1000, orientation='portrait', bbox_inches='tight',
+                    pad_inches=None)
         print(pduDisp)
         print(pdforces)
         print(pdStress)
